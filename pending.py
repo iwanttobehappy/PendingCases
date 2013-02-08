@@ -71,7 +71,7 @@ prefix=result.prefix
 
 rr=csv.reader(open(filename,'rb'),delimiter=',',quotechar='\'')
 rr.next()
-
+# order of fields CASE_NUMBER  DATE_REPORTED  DATE_RECEIVED STATION_ID PRACTICE BODY_SITE
 if prefix=="M1":
 	print "***Molecular*****"
 	print "CASE"+'\t'+"days"+'\t'+"practice"+'\t'+"Test Type"
