@@ -64,9 +64,12 @@ if prefix=="FC":
 
 for row in rr:
 	if row[1] =="" and row[0][0]==prefix[0] and row[0][1]==prefix[1]:
-		pendingDays=makePendingDays(row[2])
+		if row[3] !='':
+			pendingDays=makePendingDays(row[3])
+		else:
+			pendingDays=makePendingDays(row[2])
 		if pendingDays <= 60:
-			print row[0],pendingDays,cleanupBodySite(row[3:])
+			print row[0],pendingDays,cleanupBodySite(row[4:])
 
 
 		
