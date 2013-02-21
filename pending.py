@@ -48,6 +48,12 @@ def cleanList(ls):
 		e=e.replace("El Salvador","Roche")
 		e=e.replace("Aruba","Roche")
 		e=e.replace("Guatemala","Roche")
+		e=e.replace("Panama","Roche")
+		e=e.replace("Repbulic of Dominica","Roche")
+		e=e.replace("Curacao","Roche")
+		e=e.replace("Bahamas","Roche")
+		e=e.replace("Jamaica","Roche")
+		e=e.replace("Honduras","Roche")
 		e=e.replace("University of Iowa HealthcareClinical Pathology Lab","UIowa")
 		e=e.replace("Georgia Health Sciences University Medical Center","Georgia Health Sciences")
 		e=e.replace("Research Long Island Jewish Medical Ctr.","LIJ")
@@ -55,7 +61,10 @@ def cleanList(ls):
 		e=e.replace("Regional Cancer Care Associates","Regional Cancer Care")
 		e=e.replace("Weill Cornell Medical College","Weill Cornell")
 		e=e.replace("Health Network Laboratories","HNL")
-		
+		e=e.replace("Republic Dominican","Roche")
+		e=e.replace("Republic of Dominica","Roche")
+		e=e.replace("Payson Pavilion","")
+		e=e.replace("Jersey Hematology Oncology Infusion Center","Jersey Hematology")
 		clean +=e+'\t'
 	return clean
 
@@ -69,6 +78,16 @@ result=parser.parse_args()
 filename=result.filename
 prefix=result.prefix
 
+#need to do something special for surgical.  We have one line per stain for a case , but we want to print the case out only once.  But the other challenge is that we need to concatenate the stains
+isSurgical=False
+
+#set to factor out dups
+surgicalCases=set()
+surgicalTAT=dict()
+#dict is mapping each case number to an appending string of test types
+surgicalDescription=dict()
+
+
 rr=csv.reader(open(filename,'rb'),delimiter=',',quotechar='\'')
 rr.next()
 # order of fields CASE_NUMBER  DATE_REPORTED  DATE_RECEIVED STATION_ID PRACTICE BODY_SITE
@@ -81,6 +100,7 @@ if prefix=="X1":
 if prefix=="S1":
 	print "***Surgical****"
 	print "CASE"+'\t'+"days"+'\t'+"practice"+'\t'+"Test Type"
+	isSurgical=True
 if prefix=="FH":
 	print "******FISH*****"
 	print "CASE"+'\t'+"days"+'\t'+"practice"+'\t'+"Test Type"
@@ -97,9 +117,18 @@ for row in rr:
 			pendingDays=makePendingDays(row[3])
 		else:
 			pendingDays=makePendingDays(row[2])
-		if pendingDays <= 60:
+		if pendingDays <= 60 and isSurgical==False:
 			print row[0]+'\t'+str(pendingDays)+'\t'+cleanList(cleanupBodySite(row[4:]))
+		if pendingDays <= 60 and isSurgical==True:
+			#print row[0]+'\t'+str(pendingDays)+'\t'+cleanList(cleanupBodySite(row[4:]))
+			surgicalCases.add(row[0])
+			surgicalTAT[row[0]]=pendingDays
+			surgicalDescription[row[0]]=cleanList(cleanupBodySite(row[4:]))
+			#surgicalDescription[row[0]]=surgicalDescription.get(row[0],[])+[cleanList(cleanupBodySite(row[4:]))]
 
+if isSurgical==True:
+	for e in surgicalCases:
+		print e+'\t'+str(surgicalTAT[e])+'\t'+str(surgicalDescription[e])
 
 		
 		
