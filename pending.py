@@ -6,6 +6,7 @@ from time import strptime
 import datetime
 import re
 import argparse
+from array import array
 
 def makePendingDays(dt):
 	tmp=dt.split()
@@ -18,6 +19,31 @@ def makePendingDays(dt):
 	today=date.today()
 	return abs((today-dt).days)
 
+def cleanSurgicalList(sl):
+	practice=set()
+	tests=""
+	pn=""
+	for ele in sl:
+		ele=ele.replace('"','')
+		ele=ele.replace('\t',' ')
+		ele=ele.split(" ")
+		
+		pn=str(ele[0:3])
+		
+		practice.add(pn)
+		tests+=" "+ele[len(ele)-2]
+	return cleanPracticeFromcleanSurgicalList(practice.pop())+'\t'+tests
+
+def cleanPracticeFromcleanSurgicalList(s):
+	cp=""
+	for e in s:
+		cp +=e
+	cp=cp.replace("[","")
+	cp=cp.replace("]","")
+	cp=cp.replace("'",'')
+	cp=cp.replace(",",'')
+	return cp
+		
 
 def cleanupBodySite(site):
 	cleansite=list()
@@ -123,12 +149,13 @@ for row in rr:
 			#print row[0]+'\t'+str(pendingDays)+'\t'+cleanList(cleanupBodySite(row[4:]))
 			surgicalCases.add(row[0])
 			surgicalTAT[row[0]]=pendingDays
-			surgicalDescription[row[0]]=cleanList(cleanupBodySite(row[4:]))
-			#surgicalDescription[row[0]]=surgicalDescription.get(row[0],[])+[cleanList(cleanupBodySite(row[4:]))]
+			#surgicalDescription[row[0]]=cleanList(cleanupBodySite(row[4:]))
+			surgicalDescription[row[0]]=surgicalDescription.get(row[0],[])+[cleanList(cleanupBodySite(row[4:]))]
 
 if isSurgical==True:
 	for e in surgicalCases:
-		print e+'\t'+str(surgicalTAT[e])+'\t'+str(surgicalDescription[e])
+		#print e+'\t'+str(surgicalTAT[e])+'\t'+str(surgicalDescription[e])
+		print e+'\t'+str(surgicalTAT[e])+'\t'+str(cleanSurgicalList(surgicalDescription[e]))
 
 		
 		
